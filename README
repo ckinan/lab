@@ -1,16 +1,15 @@
-# cktop
+cktop
+-----
 
-A Linux terminal system monitor. Shows live CPU and memory usage alongside a process list with per-process CPU%, RSS, and user — reads directly from `/proc`.
+A Linux terminal system monitor.
 
-## Installation
+Installation
+------------
 
-```sh
-go install github.com/ckinan/cktop@latest
-```
+  go install github.com/ckinan/cktop@latest
 
-## Upgrade
+Upgrade
+-------
 
-```sh
-GOPROXY=direct go install github.com/ckinan/cktop@latest
-```
+  GOPROXY=direct go install github.com/ckinan/cktop@latest
 
