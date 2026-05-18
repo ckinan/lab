@@ -6,7 +6,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/ckinan/cktop/internal/adapters/gopsutil"
+	"github.com/ckinan/cktop/internal/adapters/proc"
 	"github.com/ckinan/cktop/internal/domain"
 	"github.com/ckinan/cktop/internal/infra"
 	"github.com/ckinan/cktop/internal/ui"
@@ -20,9 +20,9 @@ func main() {
 	defer cancel() // ensure goroutine is always stopped when main() exits
 
 	// Adapters / repositories
-	memReader := gopsutil.GopsutilMemoryReader{}
-	procReader := gopsutil.NewGopsutilProcessReader()
-	cpuReader := gopsutil.GopsutilCPUReader{}
+	memReader := proc.ProcMemoryReader{}
+	procReader := proc.NewProcProcessReader()
+	cpuReader := proc.NewProcCPUReader()
 
 	// Domain (pure functions)
 	collector := domain.NewCollector(memReader, procReader, cpuReader)

@@ -1,15 +1,15 @@
 //go:build integration
 
-package gopsutil_test
+package proc_test
 
 import (
 	"testing"
 
-	"github.com/ckinan/cktop/internal/adapters/gopsutil"
+	"github.com/ckinan/cktop/internal/adapters/proc"
 )
 
-func TestGopsutilMemoryReader_RealSystem(t *testing.T) {
-	r := gopsutil.GopsutilMemoryReader{}
+func TestProcMemoryReader_RealSystem(t *testing.T) {
+	r := proc.ProcMemoryReader{}
 	mem, err := r.ReadMemory()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -22,19 +22,25 @@ func TestGopsutilMemoryReader_RealSystem(t *testing.T) {
 	}
 }
 
-func TestGopsutilCPUReader_RealSystem(t *testing.T) {
-	r := gopsutil.GopsutilCPUReader{}
+func TestProcCPUReader_RealSystem(t *testing.T) {
+	r := proc.NewProcCPUReader()
+	// first call seeds the baseline - always returns 0
+	_, err := r.ReadCPU()
+	if err != nil {
+		t.Fatalf("unexpected error on first call: %v", err)
+	}
+	// second call returns the actual delta
 	cpu, err := r.ReadCPU()
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("unexpected error on second call: %v", err)
 	}
 	if cpu < 0 || cpu > 100 {
 		t.Errorf("CPU percent should be between 0-100, got %.2f", cpu)
 	}
 }
 
-func TestGopsutilProcessReader_RealSystem(t *testing.T) {
-	r := gopsutil.NewGopsutilProcessReader()
+func TestProcProcessReader_RealSystem(t *testing.T) {
+	r := proc.NewProcProcessReader()
 	procs, err := r.ReadProcesses()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
