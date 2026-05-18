@@ -12,6 +12,10 @@ func TestParseMeminfo(t *testing.T) {
 MemFree:         2048000 kB
 MemAvailable:    8192000 kB
 Buffers:          512000 kB
+Cached:          1024000 kB
+Shmem:            256000 kB
+SwapTotal:       8192000 kB
+SwapFree:        8192000 kB
 `
 	mem, err := parseMeminfo(strings.NewReader(input))
 	if err != nil {
@@ -19,8 +23,15 @@ Buffers:          512000 kB
 	}
 	want := domain.Memory{
 		Total:     16384000 * 1024,
+		Free:      2048000 * 1024,
 		Available: 8192000 * 1024,
 		Used:      (16384000 - 8192000) * 1024,
+		Buffers:   512000 * 1024,
+		Cached:    1024000 * 1024,
+		Shmem:     256000 * 1024,
+		SwapTotal: 8192000 * 1024,
+		SwapFree:  8192000 * 1024,
+		SwapUsed:  0,
 	}
 	if mem != want {
 		t.Errorf("got %+v, want %+v", mem, want)
