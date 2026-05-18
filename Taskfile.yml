@@ -30,7 +30,7 @@ tasks:
   run:
     desc: Run cktop
     cmds:
-      - go run .
+      - go run ./cmd/cktop
 
   clean:
     desc: Remove compiled binaries

@@ -1,15 +1,15 @@
 cktop
 -----
 
-A Linux terminal system monitor.
+A Linux terminal system monitor. Reads directly from /proc.
 
 Installation
 ------------
 
-  go install github.com/ckinan/cktop@latest
+  go install github.com/ckinan/cktop/cmd/cktop@latest
 
 Upgrade
 -------
 
-  GOPROXY=direct go install github.com/ckinan/cktop@latest
+  GOPROXY=direct go install github.com/ckinan/cktop/cmd/cktop@latest
 
