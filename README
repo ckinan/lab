@@ -64,18 +64,58 @@ Create /etc/victoriametrics/scrape_config.yaml (or any path readable by the vict
           labels:
             host: '<hostname2>'
 
-Update /etc/systemd/system/victoriametrics.service to pass the config:
+Example /etc/systemd/system/victoriametrics.service:
 
-  ExecStart=/usr/local/bin/victoria-metrics-prod \
-    -storageDataPath=/var/lib/victoria-metrics \
-    -retentionPeriod=90d \
-    -selfScrapeInterval=10s \
-    -promscrape.config=/etc/victoriametrics/scrape_config.yaml
+  [Unit]
+  Description=VictoriaMetrics service
+  After=network.target
+  
+  [Service]
+  Type=simple
+  User=debian
+  Group=debian
+  ExecStart=/home/debian/dev/victoriametrics/code/bin/victoria-metrics-linux-amd64 \
+    -storageDataPath=/home/debian/dev/victoriametrics/data \
+    -retentionPeriod=7d \
+    -selfScrapeInterval=10s
+  SyslogIdentifier=victoriametrics
+  Restart=always
+  
+  PrivateTmp=yes
+  # ProtectHome=yes
+  NoNewPrivileges=yes
+  
+  ProtectSystem=full
+  
+  [Install]
+  WantedBy=multi-user.target
 
-Reload and restart VictoriaMetrics:
+Example /etc/systemd/system/victoriametrics-vmagent.service:
 
-  sudo systemctl daemon-reload && sudo systemctl restart victoriametrics
+  [Unit]
+  Description=vmagent metrics scraper
+  After=network.target
+  
+  [Service]
+  Type=simple
+  User=debian
+  Group=debian
+  ExecStart=/home/debian/dev/victoriametrics/code/bin/vmagent-linux-amd64 \
+    -promscrape.config=/home/debian/dev/victoriametrics/config/scrape_config.yaml \
+    -remoteWrite.url=http://localhost:8428/api/v1/write \
+    -remoteWrite.tmpDataPath=/home/debian/dev/victoriametrics/data/vmagent
+  Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+Reload and restart and monitor VictoriaMetrics:
+
+  sudo systemctl daemon-reload
+  sudo systemctl restart victoriametrics
+  sudo systemctl restart victoriametrics-vmagent
   sudo systemctl status victoriametrics
+  journalctl -u victoriametrics -f
 
 See https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/ for full VictoriaMetrics configuration reference.
 
