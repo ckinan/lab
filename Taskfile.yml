@@ -38,6 +38,18 @@ tasks:
   run:agent:
     desc: Run ckagent (Prometheus exporter)
     cmds:
+      - |
+        PID=$(fuser 9110/tcp 2>/dev/null | tr -d ' ')
+        if [ -n "$PID" ]; then
+          NAME=$(ps -p "$PID" -o comm= 2>/dev/null)
+          read -p "$NAME (pid $PID) is using port 9110 — kill it? [y/N] " ans
+          if [ "$ans" = "y" ]; then
+            kill "$PID"
+            sleep 0.3
+          else
+            exit 1
+          fi
+        fi
       - "{{.CGO}} go run ./cmd/ckagent"
 
   run:stat:
