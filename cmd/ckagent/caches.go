@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/VictoriaMetrics/metrics"
-	"github.com/ckinan/cktop/internal/adapters/proc"
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/adapters/proc"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 type memCache struct {

@@ -1,121 +1,67 @@
+lab
+===
+
+Personal Linux systems toolbox. Learning experiment, also running in production
+at home. Reads from /proc directly - no wrappers, no abstractions over
+abstractions.
+
+Tools
+-----
+
+  cktop    - terminal UI for system monitoring
+  ckstat   - one-shot CLI, prints current memory usage
+  ckagent  - metrics agent, exposes /proc data in Prometheus exposition format
+
+
 cktop
-=====
+-----
 
-A Linux terminal system monitor. Reads directly from /proc.
-
-Installation
-------------
-
-  go install github.com/ckinan/cktop/cmd/cktop@latest
-
-Upgrade
--------
-
-  GOPROXY=direct go install github.com/ckinan/cktop/cmd/cktop@latest
+  go install github.com/ckinan/lab/cmd/cktop@latest
 
 
 ckstat
-======
+------
 
-A one-shot CLI tool that prints current memory usage.
+  go install github.com/ckinan/lab/cmd/ckstat@latest
 
-Installation
-------------
-
-  go install github.com/ckinan/cktop/cmd/ckstat@latest
-
-Usage
------
-
-  ckstat          # human-readable text
-  ckstat -o json  # JSON output
+  ckstat          # human-readable
+  ckstat -o json  # JSON
 
 
 ckagent
-=======
+-------
 
-A metrics agent that exposes system metrics in Prometheus exposition format.
-Designed to be scraped by VictoriaMetrics (or Prometheus).
+  go install github.com/ckinan/lab/cmd/ckagent@latest
 
-Installation
-------------
+  ckagent                  # listens on :9110
+  ckagent -addr :9111      # custom port
 
-  go install github.com/ckinan/cktop/cmd/ckagent@latest
+Metrics at http://localhost:9110/metrics. Scrape with VictoriaMetrics or
+Prometheus. Systemd unit and alert rules in deploy/.
 
-Run
----
+Metrics exposed:
 
-  ckagent -addr :9110
+  cpu, memory, swap, load averages
+  per-core CPU usage
+  disk I/O (reads, writes, io time)
+  network (bytes, packets, drops, errors per interface)
+  open file descriptors
+  socket counts (tcp, udp, raw, orphan, timewait)
+  vmstat (page faults, paging, swapping)
+  process/task counts
+  system uptime
+  apt last update and last upgrade timestamps
+  PSI - pressure stall information (cpu, memory, io) system-wide and per-service
+  per-service: CPU %, RSS, process count, PSI (via cgroups)
 
-Metrics are available at http://localhost:9110/metrics.
 
-VictoriaMetrics scrape config
------------------------------
+Development
+-----------
 
-Create /etc/victoriametrics/scrape_config.yaml (or any path readable by the victoriametrics service user):
+Requires Go 1.21+ and Task (taskfile.dev).
 
-  scrape_configs:
-    - job_name: ckagent
-      static_configs:
-        - targets: ['<host1>:9110']
-          labels:
-            host: '<hostname1>'
-        - targets: ['<host2>:9110']
-          labels:
-            host: '<hostname2>'
-
-Example /etc/systemd/system/victoriametrics.service:
-
-  [Unit]
-  Description=VictoriaMetrics service
-  After=network.target
-  
-  [Service]
-  Type=simple
-  User=debian
-  Group=debian
-  ExecStart=/home/debian/dev/victoriametrics/code/bin/victoria-metrics-linux-amd64 \
-    -storageDataPath=/home/debian/dev/victoriametrics/data \
-    -retentionPeriod=7d \
-    -selfScrapeInterval=10s
-  SyslogIdentifier=victoriametrics
-  Restart=always
-  
-  PrivateTmp=yes
-  # ProtectHome=yes
-  NoNewPrivileges=yes
-  
-  ProtectSystem=full
-  
-  [Install]
-  WantedBy=multi-user.target
-
-Example /etc/systemd/system/victoriametrics-vmagent.service:
-
-  [Unit]
-  Description=vmagent metrics scraper
-  After=network.target
-  
-  [Service]
-  Type=simple
-  User=debian
-  Group=debian
-  ExecStart=/home/debian/dev/victoriametrics/code/bin/vmagent-linux-amd64 \
-    -promscrape.config=/home/debian/dev/victoriametrics/config/scrape_config.yaml \
-    -remoteWrite.url=http://localhost:8428/api/v1/write \
-    -remoteWrite.tmpDataPath=/home/debian/dev/victoriametrics/data/vmagent
-  Restart=always
-
-[Install]
-WantedBy=multi-user.target
-
-Reload and restart and monitor VictoriaMetrics:
-
-  sudo systemctl daemon-reload
-  sudo systemctl restart victoriametrics
-  sudo systemctl restart victoriametrics-vmagent
-  sudo systemctl status victoriametrics
-  journalctl -u victoriametrics -f
-
-See https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/ for full VictoriaMetrics configuration reference.
+  task build          # build all binaries
+  task test           # unit tests
+  task run:agent      # run ckagent locally
+  task install:agent  # build and deploy to /usr/local/bin + restart systemd unit
 

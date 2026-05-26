@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ckinan/cktop/internal/adapters/proc"
+	"github.com/ckinan/lab/internal/adapters/proc"
 )
 
 func TestProcMemoryReader_RealSystem(t *testing.T) {

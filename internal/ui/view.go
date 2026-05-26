@@ -3,7 +3,7 @@ package ui
 import (
 	"fmt"
 
-	"github.com/ckinan/cktop/internal/util"
+	"github.com/ckinan/lab/internal/util"
 )
 
 func (m Model) View() string {

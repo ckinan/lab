@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 type MockMemoryReader struct {

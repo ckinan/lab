@@ -5,7 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 const (

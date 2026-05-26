@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 func Start(ctx context.Context, c *domain.Collector, interval time.Duration) <-chan domain.Snapshot {

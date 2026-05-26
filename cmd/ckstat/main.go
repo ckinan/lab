@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/ckinan/cktop/internal/adapters/proc"
-	"github.com/ckinan/cktop/internal/domain"
-	"github.com/ckinan/cktop/internal/util"
+	"github.com/ckinan/lab/internal/adapters/proc"
+	"github.com/ckinan/lab/internal/domain"
+	"github.com/ckinan/lab/internal/util"
 )
 
 type snapshot struct {

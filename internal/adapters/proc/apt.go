@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 const aptHistoryLog = "/var/log/apt/history.log"

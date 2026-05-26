@@ -10,8 +10,8 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/ckinan/cktop/internal/domain"
-	"github.com/ckinan/cktop/internal/util"
+	"github.com/ckinan/lab/internal/domain"
+	"github.com/ckinan/lab/internal/util"
 )
 
 type snapshotMsg domain.Snapshot

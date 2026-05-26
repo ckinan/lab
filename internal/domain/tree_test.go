@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 // TestBuildChildren_DuplicatePIDs guards against a known gopsutil behavior:

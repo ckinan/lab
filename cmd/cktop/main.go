@@ -6,10 +6,10 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/ckinan/cktop/internal/adapters/proc"
-	"github.com/ckinan/cktop/internal/domain"
-	"github.com/ckinan/cktop/internal/infra"
-	"github.com/ckinan/cktop/internal/ui"
+	"github.com/ckinan/lab/internal/adapters/proc"
+	"github.com/ckinan/lab/internal/domain"
+	"github.com/ckinan/lab/internal/infra"
+	"github.com/ckinan/lab/internal/ui"
 )
 
 // main has one job: wire the graph and start the program

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 // ProcServiceStatsReader scans all /proc/[pid] entries and aggregates RSS and CPU

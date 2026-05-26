@@ -1,4 +1,4 @@
-module github.com/ckinan/cktop
+module github.com/ckinan/lab
 
 go 1.25.0
 

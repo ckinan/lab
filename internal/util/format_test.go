@@ -3,7 +3,7 @@ package util_test
 import (
 	"testing"
 
-	"github.com/ckinan/cktop/internal/util"
+	"github.com/ckinan/lab/internal/util"
 )
 
 func TestHumanBytes(t *testing.T) {

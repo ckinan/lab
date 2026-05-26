@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 // clkTck is USER_HZ - virtually always 100 on Linux x86/arm64.

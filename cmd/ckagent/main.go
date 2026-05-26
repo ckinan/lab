@@ -7,7 +7,7 @@ import (
 "time"
 
 "github.com/VictoriaMetrics/metrics"
-"github.com/ckinan/cktop/internal/adapters/proc"
+"github.com/ckinan/lab/internal/adapters/proc"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ckinan/cktop/internal/domain"
+	"github.com/ckinan/lab/internal/domain"
 )
 
 func TestParseMeminfo(t *testing.T) {
