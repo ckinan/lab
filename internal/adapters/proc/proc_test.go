@@ -1,6 +1,7 @@
 package proc
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -139,4 +140,246 @@ func TestParseStatTicks(t *testing.T) {
 	if stime != 17 {
 		t.Errorf("stime: got %d, want 17", stime)
 	}
+}
+
+func TestParseLoadAvg(t *testing.T) {
+got, err := parseLoadAvg("0.52 0.73 0.88 3/412 12345")
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+want := domain.LoadAvg{Avg1m: 0.52, Avg5m: 0.73, Avg15m: 0.88, Running: 3, Total: 412}
+if got != want {
+t.Errorf("got %+v, want %+v", got, want)
+}
+}
+
+func TestParseLoadAvg_TooFewFields(t *testing.T) {
+_, err := parseLoadAvg("0.52 0.73 0.88")
+if err == nil {
+t.Error("expected error for too few fields")
+}
+}
+
+func TestParseLoadAvg_MalformedTasks(t *testing.T) {
+_, err := parseLoadAvg("0.52 0.73 0.88 notvalid 12345")
+if err == nil {
+t.Error("expected error for malformed tasks field")
+}
+}
+
+func TestParseFileNR(t *testing.T) {
+got, err := parseFileNR("1024\t0\t9223372036854775807")
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+if got.Open != 1024 {
+t.Errorf("Open: got %d, want 1024", got.Open)
+}
+if got.Max != 9223372036854775807 {
+t.Errorf("Max: got %d, want 9223372036854775807", got.Max)
+}
+}
+
+func TestParseFileNR_TooFewFields(t *testing.T) {
+_, err := parseFileNR("1024 0")
+if err == nil {
+t.Error("expected error for too few fields")
+}
+}
+
+func TestParseSockStat(t *testing.T) {
+input := `sockets: used 123
+TCP: inuse 31 orphan 0 tw 5 alloc 33 mem 5
+UDP: inuse 7 mem 2
+UDPLITE: inuse 0
+RAW: inuse 1
+FRAG: inuse 0 memory 0
+`
+got, err := parseSockStat(strings.NewReader(input))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+if got.TCPUsed != 31 {
+t.Errorf("TCPUsed: got %d, want 31", got.TCPUsed)
+}
+if got.TCPOrphan != 0 {
+t.Errorf("TCPOrphan: got %d, want 0", got.TCPOrphan)
+}
+if got.TCPTimeWait != 5 {
+t.Errorf("TCPTimeWait: got %d, want 5", got.TCPTimeWait)
+}
+if got.UDPUsed != 7 {
+t.Errorf("UDPUsed: got %d, want 7", got.UDPUsed)
+}
+if got.RAWUsed != 1 {
+t.Errorf("RAWUsed: got %d, want 1", got.RAWUsed)
+}
+}
+
+func TestParseSockStat_MissingProtocol(t *testing.T) {
+// only TCP present; UDP and RAW fields should be zero, no error
+input := "TCP: inuse 10 orphan 0 tw 2 alloc 10 mem 1\n"
+got, err := parseSockStat(strings.NewReader(input))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+if got.UDPUsed != 0 {
+t.Errorf("UDPUsed: got %d, want 0", got.UDPUsed)
+}
+}
+
+func TestParseVMStat(t *testing.T) {
+input := `pgfault 100
+pgmajfault 2
+pswpin 0
+pswpout 3
+pgpgin 500
+pgpgout 800
+some_other_key 999
+`
+got, err := parseVMStat(strings.NewReader(input))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+if got.PageFaults != 100 {
+t.Errorf("PageFaults: got %d, want 100", got.PageFaults)
+}
+if got.MajorPageFaults != 2 {
+t.Errorf("MajorPageFaults: got %d, want 2", got.MajorPageFaults)
+}
+if got.SwapIn != 0 {
+t.Errorf("SwapIn: got %d, want 0", got.SwapIn)
+}
+if got.SwapOut != 3 {
+t.Errorf("SwapOut: got %d, want 3", got.SwapOut)
+}
+if got.PageIn != 500 {
+t.Errorf("PageIn: got %d, want 500", got.PageIn)
+}
+if got.PageOut != 800 {
+t.Errorf("PageOut: got %d, want 800", got.PageOut)
+}
+}
+
+func TestParseVMStat_MissingKeys(t *testing.T) {
+// keys not present should be zero, not an error
+got, err := parseVMStat(strings.NewReader("unrelated_key 42\n"))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+if got.PageFaults != 0 {
+t.Errorf("PageFaults: got %d, want 0", got.PageFaults)
+}
+}
+
+func TestParseDiskStats(t *testing.T) {
+input := `   8       0 sda 1000 0 10000 500 2000 0 20000 1000 0 800 0 0 0 300
+   8       1 sda1 500 0 5000 250 1000 0 10000 500 0 400 0 0 0 150
+   7       0 loop0 100 0 1000 50 200 0 2000 100 0 80 0 0 0 30
+ 252       0 dm-0 800 0 8000 400 1600 0 16000 800 0 640 0 0 0 240
+`
+stats, err := parseDiskStats(strings.NewReader(input))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+// loop0 should be filtered out
+devices := make(map[string]domain.DiskStat)
+for _, s := range stats {
+devices[s.Device] = s
+}
+if _, ok := devices["loop0"]; ok {
+t.Error("loop0 should be filtered out")
+}
+if _, ok := devices["sda"]; !ok {
+t.Error("sda should be present")
+}
+if _, ok := devices["dm-0"]; !ok {
+t.Error("dm-0 should be present")
+}
+sda := devices["sda"]
+if sda.ReadsTotal != 1000 {
+t.Errorf("sda ReadsTotal: got %d, want 1000", sda.ReadsTotal)
+}
+if sda.ReadBytes != 10000*512 {
+t.Errorf("sda ReadBytes: got %d, want %d", sda.ReadBytes, 10000*512)
+}
+if sda.IOTimeMs != 800 {
+t.Errorf("sda IOTimeMs: got %d, want 800", sda.IOTimeMs)
+}
+}
+
+func TestParseDiskStats_TooFewFields(t *testing.T) {
+// lines with fewer than 14 fields must be skipped without error
+input := "   8       0 sda 1000 0 10000\n"
+stats, err := parseDiskStats(strings.NewReader(input))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+if len(stats) != 0 {
+t.Errorf("expected 0 stats, got %d", len(stats))
+}
+}
+
+func TestParseNetDev(t *testing.T) {
+input := `Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+    lo:  100000     500    0    0    0     0          0         0   100000     500    0    0    0     0       0          0
+  eth0: 2000000   10000   1    2    0     0          0         0  1000000    5000    0    0    0     0       0          0
+`
+devs, err := parseNetDev(strings.NewReader(input))
+if err != nil {
+t.Fatalf("unexpected error: %v", err)
+}
+byName := make(map[string]domain.NetDev)
+for _, d := range devs {
+byName[d.Interface] = d
+}
+if len(byName) != 2 {
+t.Fatalf("expected 2 interfaces, got %d", len(byName))
+}
+eth0 := byName["eth0"]
+if eth0.RxBytes != 2000000 {
+t.Errorf("eth0 RxBytes: got %d, want 2000000", eth0.RxBytes)
+}
+if eth0.TxBytes != 1000000 {
+t.Errorf("eth0 TxBytes: got %d, want 1000000", eth0.TxBytes)
+}
+if eth0.RxErrors != 1 {
+t.Errorf("eth0 RxErrors: got %d, want 1", eth0.RxErrors)
+}
+if eth0.RxDrops != 2 {
+t.Errorf("eth0 RxDrops: got %d, want 2", eth0.RxDrops)
+}
+}
+
+func TestReadCgroupUnit(t *testing.T) {
+cases := []struct {
+content string
+want    string
+}{
+{"0::/system.slice/cups.service\n", "cups.service"},
+{"0::/user.slice/user-1000.slice/session-2.scope\n", "session-2.scope"},
+{"0::/\n", "(untracked)"},
+{"0::\n", "(untracked)"},
+// cgroup v1 lines only — no "0::" line
+{"12:memory:/system.slice/foo\n", "(untracked)"},
+}
+for _, c := range cases {
+// write temp file since readCgroupUnit takes a path
+f, err := os.CreateTemp("", "cgroup")
+if err != nil {
+t.Fatal(err)
+}
+f.WriteString(c.content)
+f.Close()
+got, err := readCgroupUnit(f.Name())
+os.Remove(f.Name())
+if err != nil {
+t.Errorf("content %q: unexpected error: %v", c.content, err)
+continue
+}
+if got != c.want {
+t.Errorf("content %q: got %q, want %q", c.content, got, c.want)
+}
+}
 }

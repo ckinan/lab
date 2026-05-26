@@ -76,3 +76,76 @@ func parseCPUSample(data string) (cpuSample, error) {
 	}
 	return cpuSample{busy: total - idle, total: total}, nil
 }
+
+// ProcCPUCoresReader tracks per-core CPU usage across calls.
+// Like ProcCPUReader, the first call seeds the baseline and returns an empty slice.
+type ProcCPUCoresReader struct {
+	prev map[string]cpuSample // core name -> last sample
+}
+
+func NewProcCPUCoresReader() *ProcCPUCoresReader {
+	return &ProcCPUCoresReader{prev: make(map[string]cpuSample)}
+}
+
+// ReadCPUCores returns a map of core name (e.g. "cpu0") to usage percent.
+func (r *ProcCPUCoresReader) ReadCPUCores() (map[string]float64, error) {
+	data, err := os.ReadFile("/proc/stat")
+	if err != nil {
+		return nil, fmt.Errorf("read /proc/stat: %w", err)
+	}
+
+	samples, err := parseCoreSamples(string(data))
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string]float64, len(samples))
+	for core, cur := range samples {
+		if prev, ok := r.prev[core]; ok {
+			deltaBusy := cur.busy - prev.busy
+			deltaTotal := cur.total - prev.total
+			if deltaTotal > 0 {
+				result[core] = float64(deltaBusy) / float64(deltaTotal) * 100
+			}
+		}
+		r.prev[core] = cur
+	}
+	return result, nil
+}
+
+func parseCoreSamples(data string) (map[string]cpuSample, error) {
+	samples := make(map[string]cpuSample)
+	for _, line := range strings.Split(data, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 5 {
+			continue
+		}
+		name := fields[0]
+		// match cpu0, cpu1, ... but not the aggregate "cpu" line
+		if len(name) < 4 || name[:3] != "cpu" {
+			continue
+		}
+		if _, err := strconv.Atoi(name[3:]); err != nil {
+			continue
+		}
+		ticks := make([]uint64, len(fields)-1)
+		for i, f := range fields[1:] {
+			v, err := strconv.ParseUint(f, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("parse /proc/stat %s field %d: %w", name, i, err)
+			}
+			ticks[i] = v
+		}
+		var total uint64
+		for _, t := range ticks {
+			total += t
+		}
+		idle := ticks[3]
+		if len(ticks) > 4 {
+			idle += ticks[4]
+		}
+		samples[name] = cpuSample{busy: total - idle, total: total}
+	}
+	return samples, nil
+}
+
