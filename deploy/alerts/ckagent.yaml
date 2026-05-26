@@ -1,0 +1,68 @@
+groups:
+  - name: ckagent
+    interval: 1m
+    rules:
+      - alert: CkagentDown
+        expr: absent(ckagent_system_uptime_seconds)
+        for: 2m
+        annotations:
+          summary: "ckagent is not reporting metrics"
+          description: "No data from ckagent for 2+ minutes. Service may be crashed."
+
+      - alert: AptUpgradeStale
+        expr: (time() - ckagent_apt_last_upgrade_timestamp_seconds) / 86400 > 2
+        for: 1h
+        annotations:
+          summary: "Server not upgraded in 30+ days"
+          description: "Last apt upgrade was {{ $value | humanizeDuration }} ago."
+
+      - alert: ServiceMemorySpike
+        expr: |
+          (ckagent_service_rss_bytes - ckagent_service_rss_bytes offset 1h)
+          / ckagent_service_rss_bytes offset 1h > 1
+        for: 10m
+        annotations:
+          summary: "Service RSS doubled in the last hour"
+          description: "{{ $labels.unit }} RSS grew by {{ $value | humanizePercentage }} in 1h."
+
+      - alert: NetworkDropsIncreasing
+        expr: rate(ckagent_net_rx_drops_total{interface="ens18"}[10m]) > 10
+        for: 5m
+        annotations:
+          summary: "High rx drop rate on ens18"
+          description: "{{ $value | humanize }} drops/sec on ens18."
+
+      - alert: MemoryPressureFull
+        expr: ckagent_pressure_memory_full_avg10 > 0.5
+        for: 5m
+        annotations:
+          summary: "Memory full stall detected"
+          description: "All tasks stalled on memory for {{ $value }}% of the last 10s. OOM risk."
+
+      - alert: MemoryPressureFullCritical
+        expr: ckagent_pressure_memory_full_avg10 > 5
+        for: 2m
+        annotations:
+          summary: "Critical memory pressure"
+          description: "System-wide memory full stall at {{ $value }}%. Likely near OOM."
+
+      - alert: IOPressureFull
+        expr: ckagent_pressure_io_full_avg10 > 1
+        for: 5m
+        annotations:
+          summary: "IO full stall detected"
+          description: "All tasks stalled on IO for {{ $value }}% of the last 10s."
+
+      - alert: CPUContention
+        expr: ckagent_pressure_cpu_some_avg60 > 25
+        for: 10m
+        annotations:
+          summary: "Sustained CPU contention"
+          description: "CPU stall (some) at {{ $value }}% over 60s window for 10+ minutes."
+
+      - alert: ServiceMemoryPressure
+        expr: ckagent_service_pressure_memory_full_avg10 > 1
+        for: 5m
+        annotations:
+          summary: "Service-level memory full stall"
+          description: "{{ $labels.unit }} has {{ $value }}% full memory stall. May be thrashing."
