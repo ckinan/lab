@@ -40,12 +40,12 @@ tasks:
     interactive: true
     cmds:
       - |
-        PID=$(lsof -ti:9110 -sTCP:LISTEN 2>/dev/null)
+        PID=$(lsof -ti:9110 -sTCP:LISTEN 2>/dev/null || true)
         if [ -n "$PID" ]; then
           NAME=$(ps -p "$PID" -o comm= 2>/dev/null)
           read -p "$NAME (pid $PID) is using port 9110 — kill it? [y/N] " ans
           if [ "$ans" = "y" ]; then
-            kill "$PID"
+            /bin/kill "$PID"
             sleep 0.5
           else
             exit 1
