@@ -65,6 +65,13 @@ netDev := newNetDevCache()
 svc := newServiceCache()
 svc.start(5*time.Second, proc.NewProcServiceStatsReader())
 
+uptime := &uptimeCache{}
+metrics.NewGauge(`ckagent_system_uptime_seconds`, func() float64 { return uptime.get() })
+
+apt := &aptCache{}
+metrics.NewGauge(`ckagent_apt_last_update_timestamp_seconds`, func() float64 { return float64(apt.get().LastUpdateUnix) })
+metrics.NewGauge(`ckagent_apt_last_upgrade_timestamp_seconds`, func() float64 { return float64(apt.get().LastUpgradeUnix) })
+
 http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 mem.refresh(memReader)
 loadAvg.refresh(proc.ProcLoadAvgReader{})
@@ -73,6 +80,8 @@ sockStat.refresh(proc.ProcSockStatReader{})
 vmStat.refresh(proc.ProcVMStatReader{})
 disk.refresh(proc.ProcDiskStatsReader{})
 netDev.refresh(proc.ProcNetDevReader{})
+uptime.refresh(proc.ProcUptimeReader{})
+apt.refresh(proc.AptReader{})
 metrics.WritePrometheus(w, false)
 })
 

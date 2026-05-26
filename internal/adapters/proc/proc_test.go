@@ -352,6 +352,85 @@ t.Errorf("eth0 RxDrops: got %d, want 2", eth0.RxDrops)
 }
 }
 
+func TestParseUptime(t *testing.T) {
+	got, err := parseUptime("123456.78 98765.43")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != 123456.78 {
+		t.Errorf("got %f, want 123456.78", got)
+	}
+}
+
+func TestParseUptime_InvalidFormat(t *testing.T) {
+	if _, err := parseUptime(""); err == nil {
+		t.Error("expected error for empty input")
+	}
+}
+
+func TestParseLastUpgradeFromHistory(t *testing.T) {
+	content := `Start-Date: 2026-05-20  10:00:00
+Commandline: apt install curl
+Requested-By: debian (1000)
+Install: curl:amd64 (1.0)
+End-Date: 2026-05-20  10:00:10
+
+Start-Date: 2026-05-26  12:37:51
+Commandline: apt upgrade -y
+Requested-By: debian (1000)
+Upgrade: bash:amd64 (5.2, 5.3)
+End-Date: 2026-05-26  12:39:04
+
+Start-Date: 2026-05-26  12:39:23
+Commandline: apt autoremove
+Requested-By: debian (1000)
+Remove: old-pkg:amd64 (1.0)
+End-Date: 2026-05-26  12:39:25
+`
+	f, err := os.CreateTemp("", "history")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.WriteString(content)
+	f.Close()
+	defer os.Remove(f.Name())
+
+	ts, err := parseLastUpgradeFromHistory(f.Name())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ts == 0 {
+		t.Error("expected non-zero upgrade timestamp")
+	}
+	// autoremove End-Date must not override the upgrade timestamp
+	upgradeTs, _ := parseLastUpgradeFromHistory(f.Name())
+	if upgradeTs == 0 {
+		t.Error("upgrade timestamp should not be zero")
+	}
+}
+
+func TestParseLastUpgradeFromHistory_NoUpgrade(t *testing.T) {
+	content := `Start-Date: 2026-05-20  10:00:00
+Commandline: apt install curl
+End-Date: 2026-05-20  10:00:10
+`
+	f, err := os.CreateTemp("", "history")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.WriteString(content)
+	f.Close()
+	defer os.Remove(f.Name())
+
+	ts, err := parseLastUpgradeFromHistory(f.Name())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ts != 0 {
+		t.Errorf("expected 0 when no upgrade present, got %d", ts)
+	}
+}
+
 func TestReadCgroupUnit(t *testing.T) {
 cases := []struct {
 content string

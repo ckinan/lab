@@ -75,6 +75,11 @@ type DiskStat struct {
 	IOTimeMs    uint64
 }
 
+type AptInfo struct {
+	LastUpdateUnix  int64
+	LastUpgradeUnix int64
+}
+
 type NetDev struct {
 	Interface string
 	RxBytes   uint64

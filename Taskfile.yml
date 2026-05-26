@@ -52,7 +52,8 @@ tasks:
       - sudo mv /tmp/ckagent /usr/local/bin/ckagent
       - sudo cp deploy/ckagent.service /etc/systemd/system/ckagent.service
       - sudo systemctl daemon-reload
-      - sudo systemctl enable --now ckagent
+      - sudo systemctl enable ckagent
+      - sudo systemctl restart ckagent
       - sudo systemctl status ckagent --no-pager
 
   uninstall:agent:

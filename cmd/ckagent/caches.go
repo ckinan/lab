@@ -293,6 +293,50 @@ func (c *netDevCache) getIface(iface string) domain.NetDev {
 	return c.ifaces[iface]
 }
 
+type uptimeCache struct {
+	mu  sync.RWMutex
+	val float64
+}
+
+func (c *uptimeCache) refresh(r proc.ProcUptimeReader) {
+	v, err := r.ReadUptime()
+	if err != nil {
+		log.Printf("read uptime: %v", err)
+		return
+	}
+	c.mu.Lock()
+	c.val = v
+	c.mu.Unlock()
+}
+
+func (c *uptimeCache) get() float64 {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.val
+}
+
+type aptCache struct {
+	mu  sync.RWMutex
+	val domain.AptInfo
+}
+
+func (c *aptCache) refresh(r proc.AptReader) {
+	v, err := r.ReadAptInfo()
+	if err != nil {
+		log.Printf("read apt info: %v", err)
+		return
+	}
+	c.mu.Lock()
+	c.val = v
+	c.mu.Unlock()
+}
+
+func (c *aptCache) get() domain.AptInfo {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.val
+}
+
 type serviceCache struct {
 	mu       sync.RWMutex
 	services map[string]domain.ServiceStat
