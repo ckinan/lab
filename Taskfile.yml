@@ -1,25 +1,28 @@
 version: '3'
 
+vars:
+  CGO: CGO_ENABLED=0
+
 tasks:
   build:
-    desc: Compile the binary
+    desc: Compile all binaries
     cmds:
-      - go build ./...
+      - "{{.CGO}} go build ./..."
 
   vet:
-    desc: Run go vet (catches bugs the compiler misses)
+    desc: Run go vet
     cmds:
       - go vet ./...
 
   test:unit:
     desc: Run unit tests
     cmds:
-      - go test -v ./...
+      - "{{.CGO}} go test -v ./..."
 
   test:integration:
     desc: Run integration tests against the real system
     cmds:
-      - go test -v -tags integration ./...
+      - "{{.CGO}} go test -v -tags integration ./..."
 
   test:
     desc: Run all tests (unit + integration)
@@ -27,10 +30,20 @@ tasks:
       - task: test:unit
       - task: test:integration
 
-  run:
-    desc: Run cktop
+  run:top:
+    desc: Run cktop (TUI)
     cmds:
-      - go run ./cmd/cktop
+      - "{{.CGO}} go run ./cmd/cktop"
+
+  run:agent:
+    desc: Run ckagent (Prometheus exporter)
+    cmds:
+      - "{{.CGO}} go run ./cmd/ckagent"
+
+  run:stat:
+    desc: Run ckstat (one-shot CLI)
+    cmds:
+      - "{{.CGO}} go run ./cmd/ckstat"
 
   clean:
     desc: Remove compiled binaries
