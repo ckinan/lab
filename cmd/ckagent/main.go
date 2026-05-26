@@ -90,6 +90,7 @@ metrics.NewGauge(`ckagent_pressure_io_full_avg60`, func() float64 { return psi.g
 metrics.NewGauge(`ckagent_pressure_io_full_avg300`, func() float64 { return psi.get().IO.Full.Avg300 })
 
 cgroupPSI := newCgroupPSICache()
+goRT := newGoRuntimeCache()
 
 http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 mem.refresh(memReader)
@@ -103,6 +104,7 @@ uptime.refresh(proc.ProcUptimeReader{})
 apt.refresh(proc.AptReader{})
 psi.refresh(proc.ProcPSIReader{})
 cgroupPSI.refresh(proc.CgroupPSIReader{})
+goRT.refresh()
 metrics.WritePrometheus(w, false)
 })
 

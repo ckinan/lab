@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/VictoriaMetrics/metrics"
+	"github.com/ckinan/lab/internal/adapters/goruntime"
 	"github.com/ckinan/lab/internal/adapters/proc"
 	"github.com/ckinan/lab/internal/domain"
 )
@@ -382,6 +383,31 @@ func (c *uptimeCache) get() float64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.val
+}
+
+type goRuntimeCache struct {
+	mu     sync.RWMutex
+	reader *goruntime.Reader
+}
+
+func newGoRuntimeCache() *goRuntimeCache {
+	c := &goRuntimeCache{reader: goruntime.NewReader()}
+	for _, desc := range c.reader.Descs() {
+		name := desc.Name
+		promName := desc.PromName
+		metrics.GetOrCreateGauge(promName, func() float64 {
+			c.mu.RLock()
+			defer c.mu.RUnlock()
+			return c.reader.Get(name)
+		})
+	}
+	return c
+}
+
+func (c *goRuntimeCache) refresh() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.reader.Refresh()
 }
 
 type aptCache struct {
