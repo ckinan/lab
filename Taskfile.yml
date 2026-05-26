@@ -45,6 +45,23 @@ tasks:
     cmds:
       - "{{.CGO}} go run ./cmd/ckstat"
 
+  install:agent:
+    desc: Build and install ckagent as a systemd service (requires sudo)
+    cmds:
+      - "{{.CGO}} go build -o /tmp/ckagent ./cmd/ckagent"
+      - sudo mv /tmp/ckagent /usr/local/bin/ckagent
+      - sudo cp deploy/ckagent.service /etc/systemd/system/ckagent.service
+      - sudo systemctl daemon-reload
+      - sudo systemctl enable --now ckagent
+      - sudo systemctl status ckagent --no-pager
+
+  uninstall:agent:
+    desc: Stop and remove ckagent systemd service
+    cmds:
+      - sudo systemctl disable --now ckagent
+      - sudo rm -f /usr/local/bin/ckagent /etc/systemd/system/ckagent.service
+      - sudo systemctl daemon-reload
+
   clean:
     desc: Remove compiled binaries
     cmds:
