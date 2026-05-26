@@ -75,6 +75,35 @@ type DiskStat struct {
 	IOTimeMs    uint64
 }
 
+// PSIValue holds the stall averages for a single pressure type (some or full).
+type PSIValue struct {
+	Avg10  float64
+	Avg60  float64
+	Avg300 float64
+}
+
+// PSIResource holds both "some" and "full" stall values for a resource.
+// CPU has no meaningful "full" value; its Full field is always zero.
+type PSIResource struct {
+	Some PSIValue
+	Full PSIValue
+}
+
+// SystemPSI holds system-wide pressure stall information from /proc/pressure/.
+type SystemPSI struct {
+	CPU    PSIResource
+	Memory PSIResource
+	IO     PSIResource
+}
+
+// ServicePSI holds per-cgroup pressure stall information for a systemd service.
+type ServicePSI struct {
+	Unit   string
+	CPU    PSIResource
+	Memory PSIResource
+	IO     PSIResource
+}
+
 type AptInfo struct {
 	LastUpdateUnix  int64
 	LastUpgradeUnix int64

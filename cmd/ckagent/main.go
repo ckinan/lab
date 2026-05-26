@@ -72,6 +72,25 @@ apt := &aptCache{}
 metrics.NewGauge(`ckagent_apt_last_update_timestamp_seconds`, func() float64 { return float64(apt.get().LastUpdateUnix) })
 metrics.NewGauge(`ckagent_apt_last_upgrade_timestamp_seconds`, func() float64 { return float64(apt.get().LastUpgradeUnix) })
 
+psi := &psiCache{}
+metrics.NewGauge(`ckagent_pressure_cpu_some_avg10`, func() float64 { return psi.get().CPU.Some.Avg10 })
+metrics.NewGauge(`ckagent_pressure_cpu_some_avg60`, func() float64 { return psi.get().CPU.Some.Avg60 })
+metrics.NewGauge(`ckagent_pressure_cpu_some_avg300`, func() float64 { return psi.get().CPU.Some.Avg300 })
+metrics.NewGauge(`ckagent_pressure_memory_some_avg10`, func() float64 { return psi.get().Memory.Some.Avg10 })
+metrics.NewGauge(`ckagent_pressure_memory_some_avg60`, func() float64 { return psi.get().Memory.Some.Avg60 })
+metrics.NewGauge(`ckagent_pressure_memory_some_avg300`, func() float64 { return psi.get().Memory.Some.Avg300 })
+metrics.NewGauge(`ckagent_pressure_memory_full_avg10`, func() float64 { return psi.get().Memory.Full.Avg10 })
+metrics.NewGauge(`ckagent_pressure_memory_full_avg60`, func() float64 { return psi.get().Memory.Full.Avg60 })
+metrics.NewGauge(`ckagent_pressure_memory_full_avg300`, func() float64 { return psi.get().Memory.Full.Avg300 })
+metrics.NewGauge(`ckagent_pressure_io_some_avg10`, func() float64 { return psi.get().IO.Some.Avg10 })
+metrics.NewGauge(`ckagent_pressure_io_some_avg60`, func() float64 { return psi.get().IO.Some.Avg60 })
+metrics.NewGauge(`ckagent_pressure_io_some_avg300`, func() float64 { return psi.get().IO.Some.Avg300 })
+metrics.NewGauge(`ckagent_pressure_io_full_avg10`, func() float64 { return psi.get().IO.Full.Avg10 })
+metrics.NewGauge(`ckagent_pressure_io_full_avg60`, func() float64 { return psi.get().IO.Full.Avg60 })
+metrics.NewGauge(`ckagent_pressure_io_full_avg300`, func() float64 { return psi.get().IO.Full.Avg300 })
+
+cgroupPSI := newCgroupPSICache()
+
 http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 mem.refresh(memReader)
 loadAvg.refresh(proc.ProcLoadAvgReader{})
@@ -82,6 +101,8 @@ disk.refresh(proc.ProcDiskStatsReader{})
 netDev.refresh(proc.ProcNetDevReader{})
 uptime.refresh(proc.ProcUptimeReader{})
 apt.refresh(proc.AptReader{})
+psi.refresh(proc.ProcPSIReader{})
+cgroupPSI.refresh(proc.CgroupPSIReader{})
 metrics.WritePrometheus(w, false)
 })
 

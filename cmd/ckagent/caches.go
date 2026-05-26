@@ -293,6 +293,75 @@ func (c *netDevCache) getIface(iface string) domain.NetDev {
 	return c.ifaces[iface]
 }
 
+type psiCache struct {
+	mu  sync.RWMutex
+	val domain.SystemPSI
+}
+
+func (c *psiCache) refresh(r proc.ProcPSIReader) {
+	v, err := r.ReadPSI()
+	if err != nil {
+		log.Printf("read psi: %v", err)
+		return
+	}
+	c.mu.Lock()
+	c.val = v
+	c.mu.Unlock()
+}
+
+func (c *psiCache) get() domain.SystemPSI {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.val
+}
+
+type cgroupPSICache struct {
+	mu       sync.RWMutex
+	services map[string]domain.ServicePSI
+}
+
+func newCgroupPSICache() *cgroupPSICache {
+	return &cgroupPSICache{services: make(map[string]domain.ServicePSI)}
+}
+
+func (c *cgroupPSICache) refresh(r proc.CgroupPSIReader) {
+	stats, err := r.ReadServicePSI()
+	if err != nil {
+		log.Printf("read cgroup psi: %v", err)
+		return
+	}
+	c.mu.Lock()
+	c.services = make(map[string]domain.ServicePSI, len(stats))
+	for _, s := range stats {
+		c.services[s.Unit] = s
+	}
+	c.mu.Unlock()
+	for _, s := range stats {
+		unit := s.Unit
+		metrics.GetOrCreateGauge(fmt.Sprintf(`ckagent_service_pressure_cpu_some_avg10{unit=%q}`, unit), func() float64 {
+			return c.getUnit(unit).CPU.Some.Avg10
+		})
+		metrics.GetOrCreateGauge(fmt.Sprintf(`ckagent_service_pressure_memory_some_avg10{unit=%q}`, unit), func() float64 {
+			return c.getUnit(unit).Memory.Some.Avg10
+		})
+		metrics.GetOrCreateGauge(fmt.Sprintf(`ckagent_service_pressure_memory_full_avg10{unit=%q}`, unit), func() float64 {
+			return c.getUnit(unit).Memory.Full.Avg10
+		})
+		metrics.GetOrCreateGauge(fmt.Sprintf(`ckagent_service_pressure_io_some_avg10{unit=%q}`, unit), func() float64 {
+			return c.getUnit(unit).IO.Some.Avg10
+		})
+		metrics.GetOrCreateGauge(fmt.Sprintf(`ckagent_service_pressure_io_full_avg10{unit=%q}`, unit), func() float64 {
+			return c.getUnit(unit).IO.Full.Avg10
+		})
+	}
+}
+
+func (c *cgroupPSICache) getUnit(unit string) domain.ServicePSI {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.services[unit]
+}
+
 type uptimeCache struct {
 	mu  sync.RWMutex
 	val float64

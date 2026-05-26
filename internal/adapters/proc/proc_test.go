@@ -352,6 +352,52 @@ t.Errorf("eth0 RxDrops: got %d, want 2", eth0.RxDrops)
 }
 }
 
+func TestParsePSIValues(t *testing.T) {
+	fields := []string{"avg10=1.23", "avg60=0.45", "avg300=0.10", "total=9876"}
+	got := parsePSIValues(fields)
+	if got.Avg10 != 1.23 {
+		t.Errorf("Avg10: got %f, want 1.23", got.Avg10)
+	}
+	if got.Avg60 != 0.45 {
+		t.Errorf("Avg60: got %f, want 0.45", got.Avg60)
+	}
+	if got.Avg300 != 0.10 {
+		t.Errorf("Avg300: got %f, want 0.10", got.Avg300)
+	}
+}
+
+func TestReadPSIResource(t *testing.T) {
+	content := "some avg10=0.50 avg60=0.25 avg300=0.10 total=12345\nfull avg10=0.01 avg60=0.00 avg300=0.00 total=99\n"
+	f, err := os.CreateTemp("", "psi")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.WriteString(content)
+	f.Close()
+	defer os.Remove(f.Name())
+
+	res, err := readPSIResource(f.Name())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if res.Some.Avg10 != 0.50 {
+		t.Errorf("Some.Avg10: got %f, want 0.50", res.Some.Avg10)
+	}
+	if res.Full.Avg10 != 0.01 {
+		t.Errorf("Full.Avg10: got %f, want 0.01", res.Full.Avg10)
+	}
+}
+
+func TestReadPSIResource_Missing(t *testing.T) {
+	res, err := readPSIResource("/nonexistent/path/cpu.pressure")
+	if err != nil {
+		t.Errorf("expected nil error for missing file, got %v", err)
+	}
+	if res.Some.Avg10 != 0 {
+		t.Errorf("expected zero PSIResource for missing file")
+	}
+}
+
 func TestParseUptime(t *testing.T) {
 	got, err := parseUptime("123456.78 98765.43")
 	if err != nil {
