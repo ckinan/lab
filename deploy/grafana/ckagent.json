@@ -3961,6 +3961,95 @@
         }
       }
     },
+    "panel-35": {
+      "kind": "Panel",
+      "spec": {
+        "id": 35,
+        "title": "Last apt upgrade",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "afnc0jstznhmoc"
+                    },
+                    "spec": {
+                      "editorMode": "code",
+                      "expr": "time() - ckagent_apt_last_upgrade_timestamp_seconds{host=\"debian-server\"}",
+                      "legendFormat": "__auto",
+                      "range": true
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "13.0.1+security-01",
+          "spec": {
+            "options": {
+              "colorMode": "value",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "percentChangeColorMode": "standard",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "showPercentChange": false,
+              "textMode": "auto",
+              "wideLayout": true
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "s",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 2592000,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 7776000,
+                      "color": "red"
+                    }
+                  ]
+                },
+                "color": {
+                  "mode": "thresholds"
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
     "panel-4": {
       "kind": "Panel",
       "spec": {
@@ -4743,7 +4832,7 @@
                     "spec": {
                       "x": 0,
                       "y": 0,
-                      "width": 8,
+                      "width": 6,
                       "height": 4,
                       "element": {
                         "kind": "ElementReference",
@@ -4754,9 +4843,9 @@
                   {
                     "kind": "GridLayoutItem",
                     "spec": {
-                      "x": 8,
+                      "x": 6,
                       "y": 0,
-                      "width": 8,
+                      "width": 6,
                       "height": 4,
                       "element": {
                         "kind": "ElementReference",
@@ -4767,13 +4856,26 @@
                   {
                     "kind": "GridLayoutItem",
                     "spec": {
-                      "x": 16,
+                      "x": 12,
                       "y": 0,
-                      "width": 8,
+                      "width": 6,
                       "height": 4,
                       "element": {
                         "kind": "ElementReference",
                         "name": "panel-8"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 18,
+                      "y": 0,
+                      "width": 6,
+                      "height": 4,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-35"
                       }
                     }
                   }
