@@ -1,5 +1,7 @@
 version: '3'
 
+dotenv: ['.env']
+
 vars:
   CGO: CGO_ENABLED=0
 
@@ -67,3 +69,22 @@ tasks:
     desc: Remove compiled binaries
     cmds:
       - rm -f cktop
+
+  pull:dashboard:
+    desc: Pull Grafana dashboard spec from server into deploy/grafana/ckagent.json (requires GRAFANA_URL, GRAFANA_CREDS, GRAFANA_DASHBOARD_NAME in .env)
+    cmds:
+      - |
+        curl -s -u "{{.GRAFANA_CREDS}}" \
+          "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_DASHBOARD_NAME}}" \
+          | jq '.spec' > deploy/grafana/ckagent.json
+        echo "Pulled dashboard spec to deploy/grafana/ckagent.json"
+
+  deploy:dashboard:
+    desc: Deploy Grafana dashboard via v2 API (requires GRAFANA_URL, GRAFANA_CREDS, GRAFANA_DASHBOARD_NAME in .env)
+    cmds:
+      - |
+        jq '{kind:"Dashboard",apiVersion:"dashboard.grafana.app/v2",metadata:{name:"{{.GRAFANA_DASHBOARD_NAME}}"},spec:.}' deploy/grafana/ckagent.json \
+          | curl -s -X PUT "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_DASHBOARD_NAME}}" \
+            -H "Content-Type: application/json" \
+            -u "{{.GRAFANA_CREDS}}" \
+            -d @-
