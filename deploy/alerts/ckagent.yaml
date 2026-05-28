@@ -10,11 +10,11 @@ groups:
           description: "No data from ckagent for 2+ minutes. Service may be crashed."
 
       - alert: AptUpgradeStale
-        expr: (time() - ckagent_apt_last_upgrade_timestamp_seconds) / 86400 > 2
+        expr: (time() - ckagent_apt_last_upgrade_timestamp_seconds) > 172800
         for: 1h
         annotations:
-          summary: "Server not upgraded in 30+ days"
-          description: "Last apt upgrade was {{ $value | humanizeDuration }} ago."
+          summary: "Server not upgraded in 2+ days"
+          description: "Last apt upgrade was {{ humanizeDuration $value }} ago."
 
       - alert: ServiceMemorySpike
         expr: |
