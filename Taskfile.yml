@@ -58,7 +58,7 @@ tasks:
     cmds:
       - "{{.CGO}} go build -o /tmp/ckapi ./ckapi/cmd"
       - sudo mv /tmp/ckapi /usr/local/bin/ckapi
-      - sudo cp ckapi/deploy/ckapi.service /etc/systemd/system/ckapi.service
+      - sudo cp deploy/ckapi.service /etc/systemd/system/ckapi.service
       - sudo systemctl daemon-reload
       - sudo systemctl enable ckapi
       - sudo systemctl restart ckapi
