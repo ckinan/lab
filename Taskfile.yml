@@ -42,10 +42,24 @@ tasks:
     cmds:
       - "{{.CGO}} go run ./cmd/ckagent"
 
-  run:stat:
-    desc: Run ckstat (one-shot CLI)
+  run:api:
+    desc: Start ckapi
     cmds:
-      - "{{.CGO}} go run ./cmd/ckstat"
+      - "{{.CGO}} go run ./cmd"
+    dir: ckapi
+
+  run:load:
+    desc: Run k6 load test (default script; override with task run:load -- /path/to/script.js)
+    cmds:
+      - k6 run {{.CLI_ARGS | default "k6/ckapi.js"}}
+
+  build:api:
+    desc: Compile ckapi to ckapi/bin/ckapi
+    cmds:
+      - mkdir -p bin
+      - "{{.CGO}} go build -o bin/ckapi ./cmd"
+    dir: ckapi
+
 
   install:agent:
     desc: Build and install ckagent as a systemd service (requires sudo)
@@ -57,6 +71,34 @@ tasks:
       - sudo systemctl enable ckagent
       - sudo systemctl restart ckagent
       - sudo systemctl status ckagent --no-pager
+
+  install:api:
+    desc: Build and install ckapi as a systemd service (requires sudo)
+    cmds:
+      - "{{.CGO}} go build -o /tmp/ckapi ./cmd"
+      - sudo mv /tmp/ckapi /usr/local/bin/ckapi
+      - sudo cp deploy/ckapi.service /etc/systemd/system/ckapi.service
+      - sudo systemctl daemon-reload
+      - sudo systemctl enable ckapi
+      - sudo systemctl restart ckapi
+      - sudo systemctl status ckapi --no-pager
+    dir: ckapi
+
+  install:load:
+    desc: Install k6 script and systemd service for continuous load (requires sudo)
+    cmds:
+      - sudo mkdir -p /etc/cktop/k6
+      - sudo cp k6/ckapi.js /etc/cktop/k6/ckapi.js
+      - sudo cp deploy/ckload.service /etc/systemd/system/ckload.service
+      - sudo systemctl daemon-reload
+      - sudo systemctl enable ckload
+      - sudo systemctl restart ckload
+      - sudo systemctl status ckload --no-pager
+
+  deploy:scrape-config:
+    desc: Deploy vmagent scrape config (requires VMAGENT_CONFIG_PATH in .env)
+    cmds:
+      - cp deploy/scrape_config.yaml {{.VMAGENT_CONFIG_PATH}}
 
   uninstall:agent:
     desc: Stop and remove ckagent systemd service
@@ -88,3 +130,23 @@ tasks:
             -H "Content-Type: application/json" \
             -u "{{.GRAFANA_CREDS}}" \
             -d @-
+
+  pull:dashboard:load:
+    desc: Pull ckapi/ckload dashboard spec into deploy/grafana/ckload.json (requires GRAFANA_LOAD_DASHBOARD_NAME in .env)
+    cmds:
+      - |
+        curl -s -u "{{.GRAFANA_CREDS}}" \
+          "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_LOAD_DASHBOARD_NAME}}" \
+          | jq '.spec' > deploy/grafana/ckload.json
+        echo "Pulled to deploy/grafana/ckload.json"
+
+  deploy:dashboard:load:
+    desc: Deploy ckapi/ckload dashboard (requires GRAFANA_LOAD_DASHBOARD_NAME in .env)
+    cmds:
+      - |
+        jq '{kind:"Dashboard",apiVersion:"dashboard.grafana.app/v2",metadata:{name:"{{.GRAFANA_LOAD_DASHBOARD_NAME}}"},spec:.}' deploy/grafana/ckload.json \
+          | curl -s -X PUT "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_LOAD_DASHBOARD_NAME}}" \
+            -H "Content-Type: application/json" \
+            -u "{{.GRAFANA_CREDS}}" \
+            -d @-
+

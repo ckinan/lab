@@ -11,6 +11,7 @@ Tools
   cktop    - terminal UI for system monitoring
   ckstat   - one-shot CLI, prints current memory usage
   ckagent  - metrics agent, exposes /proc data in Prometheus exposition format
+  ckapi    - HTTP behavior simulator (delay, CPU burn, memory pressure, fail injection)
 
 
 cktop
@@ -55,6 +56,73 @@ Metrics exposed:
   per-service: CPU %, RSS, process count, PSI (via cgroups)
 
 
+ckapi
+-----
+
+  cd ckapi && go install ./cmd
+
+  ckapi                    # listens on :9120
+  ckapi -addr :9121        # custom port
+
+Programmable HTTP target. Set default behavior via /control, override
+per-request via /work. Designed to drive real metrics into VictoriaMetrics
+and Grafana using k6 for load generation (see k6/).
+
+Endpoints:
+
+  POST /work      execute a behavior (delay, cpu burn, memory, fail injection)
+  POST /control   set default behavior for subsequent /work requests
+  GET  /control   read current defaults
+  GET  /metrics   Prometheus exposition (ckapi_* + go_memstats_*)
+  GET  /health    liveness check
+
+Request fields (all optional, inherit from /control defaults if omitted):
+
+  delay_ms       integer   sleep N ms before responding
+  cpu_burn_ms    integer   spin the CPU for N ms
+  mem_use_bytes  integer   allocate N bytes
+  mem_hold       bool      hold allocation for the duration of the request
+  fail           bool      return 500 (or status_code if set)
+  status_code    integer   return specific HTTP status code
+
+Example:
+
+  # set defaults: 50ms delay, 10% fail rate
+  curl -s -X POST localhost:9120/control \
+    -H 'Content-Type: application/json' \
+    -d '{"delay_ms":50,"fail":false}'
+
+  # override for a single request: 800ms delay
+  curl -s -X POST localhost:9120/work \
+    -H 'Content-Type: application/json' \
+    -d '{"delay_ms":800}'
+
+Grafana dashboard in deploy/grafana/ckload.json. Systemd unit in
+deploy/ckapi.service.
+
+
+k6 load generation
+------------------
+
+Continuous synthetic load against ckapi. Requires k6 (k6.io).
+
+  k6 run k6/ckapi.js                            # run locally
+  CKAPI_URL=http://host:9120/work k6 run k6/ckapi.js  # custom target
+
+Scenarios in k6/ckapi.js:
+
+  steady          30 RPS constant, 20ms delay
+  latency-spike   20 RPS base, spikes to 150 RPS with 800ms delay every 5m
+  sawtooth-load   5-100 RPS sawtooth, 50ms delay
+  error-injection 10 RPS constant, fail=true
+  memory-hold     5 RPS constant, 10MB held per request
+
+Each scenario runs for 24h. Run as a systemd service (Restart=always) for
+continuous load. Systemd unit in deploy/ckload.service.
+
+  task install:load  # install k6 script + systemd service
+
+
 Development
 -----------
 
@@ -63,5 +131,9 @@ Requires Go 1.21+ and Task (taskfile.dev).
   task build          # build all binaries
   task test           # unit tests
   task run:agent      # run ckagent locally
-  task install:agent  # build and deploy to /usr/local/bin + restart systemd unit
+  task run:api        # run ckapi locally
+  task run:load       # run k6 locally (requires k6)
+  task install:agent  # build and deploy ckagent to /usr/local/bin + restart systemd
+  task install:api    # build and deploy ckapi to /usr/local/bin + restart systemd
+  task install:load   # deploy k6 script + restart systemd service
 

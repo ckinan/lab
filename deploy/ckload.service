@@ -1,0 +1,12 @@
+[Unit]
+Description=k6 continuous load against ckapi
+After=network.target ckapi.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/k6 run /etc/cktop/k6/ckapi.js
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target

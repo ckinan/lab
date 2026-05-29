@@ -1,0 +1,12 @@
+[Unit]
+Description=ckapi - HTTP behavior simulator
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ckapi
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
