@@ -15,14 +15,14 @@ import (
 )
 
 type Server struct {
+	active atomic.Int64
 	state  *domain.State
-	active int64
 }
 
 func New(state *domain.State) *Server {
 	s := &Server{state: state}
 	metrics.NewGauge(`ckapi_active_requests`, func() float64 {
-		return float64(atomic.LoadInt64(&s.active))
+		return float64(s.active.Load())
 	})
 	return s
 }
@@ -43,8 +43,8 @@ func (s *Server) work(w http.ResponseWriter, r *http.Request) {
 
 	req = merge(s.state.Defaults(), req)
 
-	atomic.AddInt64(&s.active, 1)
-	defer atomic.AddInt64(&s.active, -1)
+	s.active.Add(1)
+	defer s.active.Add(-1)
 
 	start := time.Now()
 	code := execute(r.Context(), req, s.state)
