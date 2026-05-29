@@ -85,20 +85,54 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "reqps",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
                 "color": {
                   "mode": "palette-classic"
                 },
                 "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
                   "drawStyle": "line",
-                  "lineWidth": 1,
                   "fillOpacity": 0,
                   "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
                   "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
                   "showPoints": "auto",
+                  "showValues": false,
                   "spanNulls": false,
                   "stacking": {
                     "group": "A",
                     "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
                   }
                 }
               },
@@ -170,20 +204,54 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "short",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
                 "color": {
                   "mode": "palette-classic"
                 },
                 "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
                   "drawStyle": "line",
-                  "lineWidth": 1,
                   "fillOpacity": 0,
                   "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
                   "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
                   "showPoints": "auto",
+                  "showValues": false,
                   "spanNulls": false,
                   "stacking": {
                     "group": "A",
                     "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
                   }
                 }
               },
@@ -297,20 +365,54 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "s",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
                 "color": {
                   "mode": "palette-classic"
                 },
                 "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
                   "drawStyle": "line",
-                  "lineWidth": 1,
                   "fillOpacity": 0,
                   "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
                   "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
                   "showPoints": "auto",
+                  "showValues": false,
                   "spanNulls": false,
                   "stacking": {
                     "group": "A",
                     "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
                   }
                 }
               },
@@ -403,20 +505,54 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "bytes",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
                 "color": {
                   "mode": "palette-classic"
                 },
                 "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
                   "drawStyle": "line",
-                  "lineWidth": 1,
                   "fillOpacity": 0,
                   "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
                   "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
                   "showPoints": "auto",
+                  "showValues": false,
                   "spanNulls": false,
                   "stacking": {
                     "group": "A",
                     "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
                   }
                 }
               },
@@ -488,20 +624,54 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "ms",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
                 "color": {
                   "mode": "palette-classic"
                 },
                 "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
                   "drawStyle": "line",
-                  "lineWidth": 1,
                   "fillOpacity": 0,
                   "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
                   "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
                   "showPoints": "auto",
+                  "showValues": false,
                   "spanNulls": false,
                   "stacking": {
                     "group": "A",
                     "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
                   }
                 }
               },
@@ -573,20 +743,54 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "short",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
                 "color": {
                   "mode": "palette-classic"
                 },
                 "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
                   "drawStyle": "line",
-                  "lineWidth": 1,
                   "fillOpacity": 0,
                   "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
                   "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
                   "showPoints": "auto",
+                  "showValues": false,
                   "spanNulls": false,
                   "stacking": {
                     "group": "A",
                     "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
                   }
                 }
               },
@@ -656,7 +860,58 @@
               }
             },
             "fieldConfig": {
-              "defaults": {},
+              "defaults": {
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "showValues": false,
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                }
+              },
               "overrides": []
             }
           }
@@ -744,7 +999,59 @@
               }
             },
             "fieldConfig": {
-              "defaults": {},
+              "defaults": {
+                "unit": "bytes",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "showValues": false,
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                }
+              },
               "overrides": []
             }
           }
@@ -811,7 +1118,58 @@
               }
             },
             "fieldConfig": {
-              "defaults": {},
+              "defaults": {
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": 0,
+                      "color": "green"
+                    },
+                    {
+                      "value": 80,
+                      "color": "red"
+                    }
+                  ]
+                },
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "showValues": false,
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                }
+              },
               "overrides": []
             }
           }
@@ -949,6 +1307,9 @@
     "ckload"
   ],
   "timeSettings": {
+    "timezone": "browser",
+    "from": "now-1h",
+    "to": "now",
     "autoRefresh": "10s",
     "autoRefreshIntervals": [
       "5s",
@@ -957,11 +1318,8 @@
       "1m",
       "5m"
     ],
-    "fiscalYearStartMonth": 0,
-    "from": "now-1h",
     "hideTimepicker": false,
-    "timezone": "browser",
-    "to": "now"
+    "fiscalYearStartMonth": 0
   },
   "title": "ckapi / ckload",
   "variables": []
