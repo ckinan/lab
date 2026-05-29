@@ -81,7 +81,7 @@ tasks:
   deploy:scrape-config:
     desc: Deploy vmagent scrape config
     cmds:
-      - cp deploy/scrape_config.yaml /etc/systemd/system/
+      - sudo cp deploy/scrape_config.yaml /etc/systemd/system/
 
   uninstall:agent:
     desc: Stop and remove ckagent systemd service
