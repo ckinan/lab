@@ -79,9 +79,9 @@ tasks:
       - sudo systemctl status ckload --no-pager
 
   deploy:scrape-config:
-    desc: Deploy vmagent scrape config (requires VMAGENT_CONFIG_PATH in .env)
+    desc: Deploy vmagent scrape config
     cmds:
-      - cp deploy/scrape_config.yaml {{.VMAGENT_CONFIG_PATH}}
+      - cp deploy/scrape_config.yaml /etc/systemd/system/
 
   uninstall:agent:
     desc: Stop and remove ckagent systemd service
