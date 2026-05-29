@@ -56,7 +56,7 @@ tasks:
   install:api:
     desc: Build and install ckapi as a systemd service (requires sudo)
     cmds:
-      - "{{.CGO}} go build -o /tmp/ckapi ./cmd"
+      - "{{.CGO}} go build -o /tmp/ckapi .ckapi/cmd"
       - sudo mv /tmp/ckapi /usr/local/bin/ckapi
       - sudo cp ckapi/deploy/ckapi.service /etc/systemd/system/ckapi.service
       - sudo systemctl daemon-reload
