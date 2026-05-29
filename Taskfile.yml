@@ -81,7 +81,10 @@ tasks:
   deploy:scrape-config:
     desc: Deploy vmagent scrape config
     cmds:
-      - sudo cp deploy/scrape_config.yaml /etc/systemd/system/
+      - sudo systemctl daemon-reload
+      - sudo systemctl enable victoriametrics-vmagent
+      - sudo systemctl restart victoriametrics-vmagent
+      - sudo systemctl status victoriametrics-vmagent --no-pager
 
   uninstall:agent:
     desc: Stop and remove ckagent systemd service
