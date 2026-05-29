@@ -66,10 +66,13 @@ tasks:
 
   install:load:
     desc: Install k6 script and systemd service for continuous load (requires sudo)
+    vars:
+      K6_BIN:
+        sh: which k6
     cmds:
       - sudo mkdir -p /etc/cktop/k6
       - sudo cp k6/ckapi.js /etc/cktop/k6/ckapi.js
-      - sudo cp deploy/ckload.service /etc/systemd/system/ckload.service
+      - sed 's|ExecStart=.*|ExecStart={{.K6_BIN}} run /etc/cktop/k6/ckapi.js|' deploy/ckload.service | sudo tee /etc/systemd/system/ckload.service > /dev/null
       - sudo systemctl daemon-reload
       - sudo systemctl enable ckload
       - sudo systemctl restart ckload
