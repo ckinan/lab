@@ -343,7 +343,7 @@
                     },
                     "spec": {
                       "editorMode": "code",
-                      "expr": "go_memstats_heap_alloc_bytes",
+                      "expr": "go_memstats_heap_alloc_bytes{job=\"ckapi\"}",
                       "legendFormat": "alloc",
                       "range": true
                     }
@@ -364,7 +364,7 @@
                     },
                     "spec": {
                       "editorMode": "code",
-                      "expr": "go_memstats_heap_inuse_bytes",
+                      "expr": "go_memstats_heap_inuse_bytes{job=\"ckapi\"}",
                       "legendFormat": "inuse",
                       "range": true
                     }
@@ -534,8 +534,8 @@
                     },
                     "spec": {
                       "editorMode": "code",
-                      "expr": "rate(go_memstats_gc_runs_total[1m])",
-                      "legendFormat": "gc/s",
+                      "expr": "increase(go_memstats_gc_runs_total{job=\"ckapi\"}[1m])",
+                      "legendFormat": "gc/min",
                       "range": true
                     }
                   },
@@ -600,7 +600,7 @@
       "kind": "Panel",
       "spec": {
         "id": 7,
-        "title": "RPS by Workload",
+        "title": "Error Rate",
         "description": "",
         "links": [],
         "data": {
@@ -619,8 +619,8 @@
                     },
                     "spec": {
                       "editorMode": "code",
-                      "expr": "rate(ckload_requests_total[1m])",
-                      "legendFormat": "{{workload}} {{status_code}}",
+                      "expr": "sum(rate(ckapi_requests_total{status_code=~\"5..\"}[1m]))",
+                      "legendFormat": "5xx/s",
                       "range": true
                     }
                   },
@@ -656,25 +656,7 @@
               }
             },
             "fieldConfig": {
-              "defaults": {
-                "unit": "reqps",
-                "color": {
-                  "mode": "palette-classic"
-                },
-                "custom": {
-                  "drawStyle": "line",
-                  "lineWidth": 1,
-                  "fillOpacity": 0,
-                  "gradientMode": "none",
-                  "lineInterpolation": "linear",
-                  "showPoints": "auto",
-                  "spanNulls": false,
-                  "stacking": {
-                    "group": "A",
-                    "mode": "none"
-                  }
-                }
-              },
+              "defaults": {},
               "overrides": []
             }
           }
@@ -685,7 +667,7 @@
       "kind": "Panel",
       "spec": {
         "id": 8,
-        "title": "Latency p99 by Workload",
+        "title": "Sys Memory",
         "description": "",
         "links": [],
         "data": {
@@ -704,12 +686,33 @@
                     },
                     "spec": {
                       "editorMode": "code",
-                      "expr": "histogram_quantile(0.99, sum(rate(ckload_request_duration_seconds_bucket[1m])) by (workload, vmrange))",
-                      "legendFormat": "{{workload}}",
+                      "expr": "go_memstats_heap_sys_bytes{job=\"ckapi\"}",
+                      "legendFormat": "heap sys",
                       "range": true
                     }
                   },
                   "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "afnc0jstznhmoc"
+                    },
+                    "spec": {
+                      "editorMode": "code",
+                      "expr": "go_memstats_sys_bytes{job=\"ckapi\"}",
+                      "legendFormat": "total sys",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
                   "hidden": false
                 }
               }
@@ -741,25 +744,7 @@
               }
             },
             "fieldConfig": {
-              "defaults": {
-                "unit": "s",
-                "color": {
-                  "mode": "palette-classic"
-                },
-                "custom": {
-                  "drawStyle": "line",
-                  "lineWidth": 1,
-                  "fillOpacity": 0,
-                  "gradientMode": "none",
-                  "lineInterpolation": "linear",
-                  "showPoints": "auto",
-                  "spanNulls": false,
-                  "stacking": {
-                    "group": "A",
-                    "mode": "none"
-                  }
-                }
-              },
+              "defaults": {},
               "overrides": []
             }
           }
@@ -770,7 +755,7 @@
       "kind": "Panel",
       "spec": {
         "id": 9,
-        "title": "Error Rate by Workload",
+        "title": "Requests by Status",
         "description": "",
         "links": [],
         "data": {
@@ -789,8 +774,8 @@
                     },
                     "spec": {
                       "editorMode": "code",
-                      "expr": "rate(ckload_errors_total[1m])",
-                      "legendFormat": "{{workload}} {{error}}",
+                      "expr": "sum(rate(ckapi_requests_total[1m])) by (status_code)",
+                      "legendFormat": "{{status_code}}",
                       "range": true
                     }
                   },
@@ -826,25 +811,7 @@
               }
             },
             "fieldConfig": {
-              "defaults": {
-                "unit": "reqps",
-                "color": {
-                  "mode": "palette-classic"
-                },
-                "custom": {
-                  "drawStyle": "line",
-                  "lineWidth": 1,
-                  "fillOpacity": 0,
-                  "gradientMode": "none",
-                  "lineInterpolation": "linear",
-                  "showPoints": "auto",
-                  "spanNulls": false,
-                  "stacking": {
-                    "group": "A",
-                    "mode": "none"
-                  }
-                }
-              },
+              "defaults": {},
               "overrides": []
             }
           }
