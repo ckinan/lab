@@ -42,25 +42,6 @@ tasks:
     cmds:
       - "{{.CGO}} go run ./cmd/ckagent"
 
-  run:api:
-    desc: Start ckapi
-    cmds:
-      - "{{.CGO}} go run ./cmd"
-    dir: ckapi
-
-  run:load:
-    desc: Run k6 load test (default script; override with task run:load -- /path/to/script.js)
-    cmds:
-      - k6 run {{.CLI_ARGS | default "k6/ckapi.js"}}
-
-  build:api:
-    desc: Compile ckapi to ckapi/bin/ckapi
-    cmds:
-      - mkdir -p bin
-      - "{{.CGO}} go build -o bin/ckapi ./cmd"
-    dir: ckapi
-
-
   install:agent:
     desc: Build and install ckagent as a systemd service (requires sudo)
     cmds:
