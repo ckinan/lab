@@ -1,5 +1,4 @@
 import http from 'k6/http';
-import { sleep } from 'k6';
 
 const TARGET = __ENV.CKAPI_URL || 'http://localhost:9120/work';
 
@@ -69,22 +68,42 @@ export const options = {
 
 const headers = { 'Content-Type': 'application/json' };
 
+function randInt(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+// Steady baseline: light delay, occasional small CPU burn, no memory pressure.
 export function steady() {
-  http.post(TARGET, JSON.stringify({ delay_ms: 20 }), { headers });
+  const payload = { delay_ms: randInt(10, 60) };
+  if (Math.random() < 0.3) payload.cpu_burn_ms = randInt(2, 10);
+  http.post(TARGET, JSON.stringify(payload), { headers });
 }
 
+// Latency spike: high jitter delay, simulates slow downstream.
 export function latencySpike() {
-  http.post(TARGET, JSON.stringify({ delay_ms: 800 }), { headers });
+  http.post(TARGET, JSON.stringify({ delay_ms: randInt(500, 1200) }), { headers });
 }
 
+// Sawtooth load: oscillating RPS, variable delay and occasional memory allocations.
 export function sawtoothLoad() {
-  http.post(TARGET, JSON.stringify({ delay_ms: 50 }), { headers });
+  const payload = { delay_ms: randInt(5, 80) };
+  if (Math.random() < 0.4) payload.mem_use_bytes = randInt(512 * 1024, 4 * 1024 * 1024);
+  http.post(TARGET, JSON.stringify(payload), { headers });
 }
 
+// Error injection: mixed success/failure with varied CPU work on errors.
 export function errorInjection() {
-  http.post(TARGET, JSON.stringify({ fail: true }), { headers });
+  const fail = Math.random() < 0.4;
+  const payload = { delay_ms: randInt(5, 30) };
+  if (fail) {
+    payload.fail = true;
+    payload.cpu_burn_ms = randInt(5, 20);
+  }
+  http.post(TARGET, JSON.stringify(payload), { headers });
 }
 
+// Memory hold: retain allocations across requests, varied size and hold duration.
 export function memoryHold() {
-  http.post(TARGET, JSON.stringify({ mem_use_bytes: 10485760, mem_hold: true, delay_ms: 10 }), { headers });
+  const memBytes = randInt(2 * 1024 * 1024, 20 * 1024 * 1024);
+  http.post(TARGET, JSON.stringify({ mem_use_bytes: memBytes, mem_hold: true, delay_ms: randInt(5, 50) }), { headers });
 }
