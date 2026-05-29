@@ -63,7 +63,6 @@ tasks:
       - sudo systemctl enable ckapi
       - sudo systemctl restart ckapi
       - sudo systemctl status ckapi --no-pager
-    dir: ckapi
 
   install:load:
     desc: Install k6 script and systemd service for continuous load (requires sudo)
