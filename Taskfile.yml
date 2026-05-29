@@ -81,6 +81,7 @@ tasks:
   deploy:scrape-config:
     desc: Deploy vmagent scrape config
     cmds:
+      - cp deploy/scrape_config.yaml /home/debian/dev/victoriametrics/config/scrape_config.yaml
       - sudo systemctl daemon-reload
       - sudo systemctl enable victoriametrics-vmagent
       - sudo systemctl restart victoriametrics-vmagent
