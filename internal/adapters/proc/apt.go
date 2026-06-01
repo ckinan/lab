@@ -2,8 +2,11 @@ package proc
 
 import (
 	"bufio"
+	"compress/gzip"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -22,13 +25,40 @@ func (r AptReader) ReadAptInfo() (domain.AptInfo, error) {
 		info.LastUpdateUnix = fi.ModTime().Unix()
 	}
 
-	ts, err := parseLastUpgradeFromHistory(aptHistoryLog)
+	ts, err := lastUpgradeTimestamp()
 	if err != nil {
 		return info, fmt.Errorf("parse apt history: %w", err)
 	}
 	info.LastUpgradeUnix = ts
 
 	return info, nil
+}
+
+// lastUpgradeTimestamp returns the most recent "apt upgrade" end timestamp
+// across the current history.log and all rotated history.log.*.gz files.
+func lastUpgradeTimestamp() (int64, error) {
+	var latest int64
+
+	ts, err := parseLastUpgradeFromHistory(aptHistoryLog)
+	if err != nil {
+		return 0, err
+	}
+	if ts > latest {
+		latest = ts
+	}
+
+	gz, _ := filepath.Glob(aptHistoryLog + ".*.gz")
+	for _, path := range gz {
+		ts, err := parseLastUpgradeFromHistoryGZ(path)
+		if err != nil {
+			continue
+		}
+		if ts > latest {
+			latest = ts
+		}
+	}
+
+	return latest, nil
 }
 
 func parseLastUpgradeFromHistory(path string) (int64, error) {
@@ -41,10 +71,30 @@ func parseLastUpgradeFromHistory(path string) (int64, error) {
 	}
 	defer f.Close()
 
+	return scanUpgradeTimestamp(f)
+}
+
+func parseLastUpgradeFromHistoryGZ(path string) (int64, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return 0, fmt.Errorf("open %s: %w", path, err)
+	}
+	defer f.Close()
+
+	gr, err := gzip.NewReader(f)
+	if err != nil {
+		return 0, fmt.Errorf("gzip %s: %w", path, err)
+	}
+	defer gr.Close()
+
+	return scanUpgradeTimestamp(gr)
+}
+
+func scanUpgradeTimestamp(r io.Reader) (int64, error) {
 	var lastUpgrade int64
 	var inUpgradeBlock bool
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		switch {
