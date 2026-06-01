@@ -1,0 +1,19 @@
+[Unit]
+Description=vmalert alerting engine
+After=network.target
+
+[Service]
+Type=simple
+User=debian
+Group=debian
+ExecStart=/home/debian/dev/victoriametrics/code/bin/vmalert-linux-amd64 \
+  -datasource.url=http://localhost:8428 \
+  -remoteWrite.url=http://localhost:8428 \
+  -notifier.url=http://localhost:9093 \
+  -rule=/home/debian/dev/victoriametrics/config/alerts/*.yaml \
+  -remoteRead.url=http://localhost:8428 \
+  -evaluationInterval=1m
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
