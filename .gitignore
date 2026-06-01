@@ -1,6 +1,11 @@
 /cktop
 /ckagent
 /ckstat
+/ckapi
+/cmd
 .env
 
 ckapi/bin/
+.github/copilot-instructions.md
+.github/hooks
+

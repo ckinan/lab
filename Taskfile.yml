@@ -9,22 +9,35 @@ tasks:
   build:
     desc: Compile all binaries
     cmds:
-      - "{{.CGO}} go build ./..."
+      - "{{.CGO}} go build github.com/ckinan/lab/apps/ckagent"
+      - "{{.CGO}} go build github.com/ckinan/lab/apps/ckapi"
+      - "{{.CGO}} go build github.com/ckinan/lab/apps/cktop"
+      - "{{.CGO}} go build github.com/ckinan/lab/apps/ckstat"
 
   vet:
     desc: Run go vet
     cmds:
-      - go vet ./...
+      - go vet github.com/ckinan/lab/libs/proc/...
+      - go vet github.com/ckinan/lab/libs/util/...
+      - go vet github.com/ckinan/lab/apps/ckagent/...
+      - go vet github.com/ckinan/lab/apps/ckapi/...
+      - go vet github.com/ckinan/lab/apps/cktop/...
+      - go vet github.com/ckinan/lab/apps/ckstat/...
 
   test:unit:
     desc: Run unit tests
     cmds:
-      - "{{.CGO}} go test -v ./..."
+      - "{{.CGO}} go test -v github.com/ckinan/lab/libs/proc/..."
+      - "{{.CGO}} go test -v github.com/ckinan/lab/libs/util/..."
+      - "{{.CGO}} go test -v github.com/ckinan/lab/apps/ckagent/..."
+      - "{{.CGO}} go test -v github.com/ckinan/lab/apps/ckapi/..."
+      - "{{.CGO}} go test -v github.com/ckinan/lab/apps/cktop/..."
+      - "{{.CGO}} go test -v github.com/ckinan/lab/apps/ckstat/..."
 
   test:integration:
     desc: Run integration tests against the real system
     cmds:
-      - "{{.CGO}} go test -v -tags integration ./..."
+      - "{{.CGO}} go test -v -tags integration github.com/ckinan/lab/libs/proc/..."
 
   test:
     desc: Run all tests (unit + integration)
@@ -35,19 +48,19 @@ tasks:
   run:top:
     desc: Run cktop (TUI)
     cmds:
-      - "{{.CGO}} go run ./cmd/cktop"
+      - "{{.CGO}} go run github.com/ckinan/lab/apps/cktop"
 
   run:agent:
     desc: Start ckagent
     cmds:
-      - "{{.CGO}} go run ./cmd/ckagent"
+      - "{{.CGO}} go run github.com/ckinan/lab/apps/ckagent"
 
   install:agent:
     desc: Build and install ckagent as a systemd service (requires sudo)
     cmds:
-      - "{{.CGO}} go build -o /tmp/ckagent ./cmd/ckagent"
+      - "{{.CGO}} go build -o /tmp/ckagent github.com/ckinan/lab/apps/ckagent"
       - sudo mv /tmp/ckagent /usr/local/bin/ckagent
-      - sudo cp deploy/ckagent.service /etc/systemd/system/ckagent.service
+      - sudo cp infra/deploy/ckagent.service /etc/systemd/system/ckagent.service
       - sudo systemctl daemon-reload
       - sudo systemctl enable ckagent
       - sudo systemctl restart ckagent
@@ -56,9 +69,9 @@ tasks:
   install:api:
     desc: Build and install ckapi as a systemd service (requires sudo)
     cmds:
-      - "{{.CGO}} go build -o /tmp/ckapi ./ckapi/cmd"
+      - "{{.CGO}} go build -o /tmp/ckapi github.com/ckinan/lab/apps/ckapi"
       - sudo mv /tmp/ckapi /usr/local/bin/ckapi
-      - sudo cp deploy/ckapi.service /etc/systemd/system/ckapi.service
+      - sudo cp infra/deploy/ckapi.service /etc/systemd/system/ckapi.service
       - sudo systemctl daemon-reload
       - sudo systemctl enable ckapi
       - sudo systemctl restart ckapi
@@ -71,8 +84,8 @@ tasks:
         sh: which k6
     cmds:
       - sudo mkdir -p /etc/cktop/k6
-      - sudo cp k6/ckapi.js /etc/cktop/k6/ckapi.js
-      - sed 's|ExecStart=.*|ExecStart={{.K6_BIN}} run /etc/cktop/k6/ckapi.js|' deploy/ckload.service | sudo tee /etc/systemd/system/ckload.service > /dev/null
+      - sudo cp infra/k6/ckapi.js /etc/cktop/k6/ckapi.js
+      - sed 's|ExecStart=.*|ExecStart={{.K6_BIN}} run /etc/cktop/k6/ckapi.js|' infra/deploy/ckload.service | sudo tee /etc/systemd/system/ckload.service > /dev/null
       - sudo systemctl daemon-reload
       - sudo systemctl enable ckload
       - sudo systemctl restart ckload
@@ -81,7 +94,7 @@ tasks:
   deploy:scrape-config:
     desc: Deploy vmagent scrape config
     cmds:
-      - cp deploy/scrape_config.yaml /home/debian/dev/victoriametrics/config/scrape_config.yaml
+      - cp infra/deploy/scrape_config.yaml /home/debian/dev/victoriametrics/config/scrape_config.yaml
       - sudo systemctl daemon-reload
       - sudo systemctl enable victoriametrics-vmagent
       - sudo systemctl restart victoriametrics-vmagent
@@ -97,41 +110,41 @@ tasks:
   clean:
     desc: Remove compiled binaries
     cmds:
-      - rm -f cktop
+      - rm -f cktop ckagent ckapi
 
   pull:dashboard:
-    desc: Pull Grafana dashboard spec from server into deploy/grafana/ckagent.json (requires GRAFANA_URL, GRAFANA_CREDS, GRAFANA_DASHBOARD_NAME in .env)
+    desc: Pull Grafana dashboard spec from server into infra/deploy/grafana/ckagent.json (requires GRAFANA_URL, GRAFANA_CREDS, GRAFANA_DASHBOARD_NAME in .env)
     cmds:
       - |
         curl -s -u "{{.GRAFANA_CREDS}}" \
           "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_DASHBOARD_NAME}}" \
-          | jq '.spec' > deploy/grafana/ckagent.json
-        echo "Pulled dashboard spec to deploy/grafana/ckagent.json"
+          | jq '.spec' > infra/deploy/grafana/ckagent.json
+        echo "Pulled dashboard spec to infra/deploy/grafana/ckagent.json"
 
   deploy:dashboard:
     desc: Deploy Grafana dashboard via v2 API (requires GRAFANA_URL, GRAFANA_CREDS, GRAFANA_DASHBOARD_NAME in .env)
     cmds:
       - |
-        jq '{kind:"Dashboard",apiVersion:"dashboard.grafana.app/v2",metadata:{name:"{{.GRAFANA_DASHBOARD_NAME}}"},spec:.}' deploy/grafana/ckagent.json \
+        jq '{kind:"Dashboard",apiVersion:"dashboard.grafana.app/v2",metadata:{name:"{{.GRAFANA_DASHBOARD_NAME}}"},spec:.}' infra/deploy/grafana/ckagent.json \
           | curl -s -X PUT "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_DASHBOARD_NAME}}" \
             -H "Content-Type: application/json" \
             -u "{{.GRAFANA_CREDS}}" \
             -d @-
 
   pull:dashboard:load:
-    desc: Pull ckapi/ckload dashboard spec into deploy/grafana/ckload.json (requires GRAFANA_LOAD_DASHBOARD_NAME in .env)
+    desc: Pull ckapi/ckload dashboard spec into infra/deploy/grafana/ckload.json (requires GRAFANA_LOAD_DASHBOARD_NAME in .env)
     cmds:
       - |
         curl -s -u "{{.GRAFANA_CREDS}}" \
           "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_LOAD_DASHBOARD_NAME}}" \
-          | jq '.spec' > deploy/grafana/ckload.json
-        echo "Pulled to deploy/grafana/ckload.json"
+          | jq '.spec' > infra/deploy/grafana/ckload.json
+        echo "Pulled to infra/deploy/grafana/ckload.json"
 
   deploy:dashboard:load:
     desc: Deploy ckapi/ckload dashboard (requires GRAFANA_LOAD_DASHBOARD_NAME in .env)
     cmds:
       - |
-        jq '{kind:"Dashboard",apiVersion:"dashboard.grafana.app/v2",metadata:{name:"{{.GRAFANA_LOAD_DASHBOARD_NAME}}"},spec:.}' deploy/grafana/ckload.json \
+        jq '{kind:"Dashboard",apiVersion:"dashboard.grafana.app/v2",metadata:{name:"{{.GRAFANA_LOAD_DASHBOARD_NAME}}"},spec:.}' infra/deploy/grafana/ckload.json \
           | curl -s -X PUT "{{.GRAFANA_URL}}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/{{.GRAFANA_LOAD_DASHBOARD_NAME}}" \
             -H "Content-Type: application/json" \
             -u "{{.GRAFANA_CREDS}}" \

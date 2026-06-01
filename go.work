@@ -1,6 +1,11 @@
 go 1.25.0
 
 use (
-	.
-	./ckapi
+	./apps/cktop
+	./apps/ckagent
+	./apps/ckstat
+	./apps/ckapi
+	./libs/proc
+	./libs/util
+	./libs/goruntime
 )
