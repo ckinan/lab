@@ -91,6 +91,21 @@ tasks:
       - sudo systemctl restart ckload
       - sudo systemctl status ckload --no-pager
 
+  build:victorialogs:
+    cmds:
+      - cd /home/debian/dev/victorialogs/code && make victoria-logs-linux-amd64
+
+  deploy:logs:
+    desc: Deploy VictoriaLogs and systemd-journal-upload configs (requires victoria-logs binary already installed)
+    cmds:
+      - sudo mkdir -p /home/debian/dev/victorialogs/data
+      - sudo cp infra/deploy/victorialogs.service /etc/systemd/system/victorialogs.service
+      - sudo cp infra/deploy/journal-upload.conf /etc/systemd/journal-upload.conf
+      - sudo systemctl daemon-reload
+      - sudo systemctl enable victorialogs systemd-journal-upload
+      - sudo systemctl restart victorialogs systemd-journal-upload
+      - sudo systemctl status victorialogs systemd-journal-upload --no-pager
+
   deploy:scrape-config:
     desc: Deploy vmagent scrape config
     cmds:

@@ -1,0 +1,15 @@
+[Unit]
+Description=VictoriaLogs - log storage
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/debian/dev/victorialogs/code/bin/victoria-logs-linux/amd64 \
+    -storageDataPath=/home/debian/dev/victorialogs/data \
+    -retentionPeriod=1month \
+    -httpListenAddr=:9428
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
