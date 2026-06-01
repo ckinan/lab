@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/debian/dev/victorialogs/code/bin/victoria-logs-linux/amd64 \
+ExecStart=/home/debian/dev/victorialogs/code/bin/victoria-logs-linux-amd64 \
     -storageDataPath=/home/debian/dev/victorialogs/data \
     -retentionPeriod=1month \
     -httpListenAddr=:9428
