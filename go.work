@@ -5,6 +5,7 @@ use (
 	./apps/ckagent
 	./apps/ckstat
 	./apps/ckapi
+	./apps/gitz
 	./libs/proc
 	./libs/util
 	./libs/goruntime
