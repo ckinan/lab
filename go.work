@@ -6,6 +6,7 @@ use (
 	./apps/ckstat
 	./apps/ckapi
 	./apps/gitz
+	./apps/privz
 	./libs/proc
 	./libs/util
 	./libs/goruntime

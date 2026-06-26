@@ -13,6 +13,13 @@ An experimental monorepo and incubator for side projects, CLI utilities, and pro
 ### `gitz`
 Fast local Git repository scanner and status summary utility.
 
+### `privz`
+Universal Linux hardware device inventory & real-time privacy radar. Scans connected hardware (USB, displays, keyboards, mice) and inspects `/proc/*/fd` to detect active webcam/microphone capture streams. Configurable via `~/.privz.yaml`.
+```bash
+go run ./apps/privz  # hardware & privacy snapshot
+```
+
+
 ### `cktop`
 Terminal UI for real-time Linux system monitoring.
 ```bash
