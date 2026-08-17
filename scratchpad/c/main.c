@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 int main(void)
 {
@@ -31,5 +32,25 @@ int main(void)
 	printf("%zu\n", sizeof 3.14);
 	printf("%zu\n", sizeof(int));
 	printf("%zu\n", sizeof(char));
+
+	int r;
+
+	do {
+		r = rand() % 100;
+		printf("%d\n", r);
+	} while (r != 37);
+
+	int xw = 1;
+
+	switch (xw) {
+		case 1:
+			printf("-- 1\n");
+		case 2:
+			printf("-- 2\n");
+			break;
+		case 3:
+			printf("-- 3\n");
+			break;
+	}
 }
 
