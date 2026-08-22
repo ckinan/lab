@@ -1,9 +1,19 @@
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-int main(void)
-{
+// sum the two given numbers
+int sum(int x, int y) {
+	return x + y;
+}
+
+int main(void) {
+	sum(1, 2);
+	sum(1, 4);
+	sum(2, 3);
+	sum(1, 2);
+	sum(1, 2);
+	sum(1, 2);
 	int i = 2;
 	float f = 3.14;
 	char *s = "Hello, world!";
@@ -43,14 +53,13 @@ int main(void)
 	int xw = 1;
 
 	switch (xw) {
-		case 1:
-			printf("-- 1\n");
-		case 2:
-			printf("-- 2\n");
-			break;
-		case 3:
-			printf("-- 3\n");
-			break;
+	case 1:
+		printf("-- 1\n");
+	case 2:
+		printf("-- 2\n");
+		break;
+	case 3:
+		printf("-- 3\n");
+		break;
 	}
 }
-
