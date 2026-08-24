@@ -1,4 +1,4 @@
-module github.com/ckinan/gitz
+module github.com/ckinan/lab/apps/gitz
 
 go 1.25.0
 
