@@ -1,13 +1,14 @@
-go 1.25.0
+go 1.27.0
 
 use (
-	./apps/cktop
 	./apps/ckagent
-	./apps/ckstat
 	./apps/ckapi
+	./apps/ckintro.nvim
+	./apps/ckstat
+	./apps/cktop
 	./apps/gitz
 	./apps/privz
+	./libs/goruntime
 	./libs/proc
 	./libs/util
-	./libs/goruntime
 )
