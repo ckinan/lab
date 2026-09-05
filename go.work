@@ -3,6 +3,7 @@ go 1.27.0
 use (
 	./apps/ckagent
 	./apps/ckapi
+	./apps/ckidle
 	./apps/ckintro.nvim
 	./apps/ckstat
 	./apps/cktop
